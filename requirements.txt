@@ -2,3 +2,4 @@ roboflow
 ultralytics
 opencv-python
 torch
+tqdm
