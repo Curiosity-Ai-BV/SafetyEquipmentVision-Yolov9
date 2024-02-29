@@ -29,11 +29,12 @@ frames = pims.Video(video_path)
 # Get video properties
 frame_height, frame_width = frames.frame_shape[:2]
 fps = frames.frame_rate  # This might not always be available depending on the backend
-number_of_frames = 60 # len(frames)
+number_of_frames = len(frames)
 
 # Define the codec and initialize the VideoWriter object to write the new video
-resize_width = 1280
-resize_height = 640
+factor = 1
+resize_width = 640*factor
+resize_height = 384*factor
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # You can change 'mp4v' to another codec if needed
 out = cv2.VideoWriter('video_labelled.mp4', fourcc, fps, (resize_width, resize_height))
 
@@ -59,11 +60,10 @@ for i in tqdm(range(number_of_frames)):
     plot_frame = pims.Frame(frame)
     for p, c in zip(filtered_pred[0], ["r", "b", "g", "cyan"]):
         x, y, w, h, score, cls = p.detach().cpu().numpy().tolist()
-        print(x, y, w, h)
         frame = plot_bounding_box(model, plot_frame, x, y, w, h, score, cls)
         
     cv2.imshow("preview", plot_frame)
-    cv2.waitKey(1000)
+    cv2.waitKey(1)
     out.write(plot_frame)
 
 #Tthe video writer object, and close all OpenCV windows
