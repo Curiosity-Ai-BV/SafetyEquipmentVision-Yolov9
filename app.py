@@ -37,7 +37,8 @@ while True:
         im = im[None]  # expand for batch dim
     
     # Detect and track objects in the frame
-    pred = model(im, augment=False, visualize=False)[0]
+    pred = model(im, augment=False, visualize="")[0]
+    print(vars(pred))
     filtered_pred = non_max_suppression(pred, conf_threshold, nms_iou_thres, None, False, max_det=max_det)
     # Plot results on the frame
     for p, c in zip(filtered_pred[0], ["r", "b", "g", "cyan"]):

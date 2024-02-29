@@ -18,7 +18,7 @@ def plot_bounding_box(model, frame, x, y, w, h, score, cls):
     text_color = (255, 255, 255) # Assuming 'c' is for text color; adjust as needed
     
         # Draw the rectangle
-    cv2.rectangle(frame, (int(x), int(y)), (int(x+w), int(y+h)), color, 4)
+    cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), color, 4)
         # Calculate text size to center it
     text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
         # Calculate center position of text

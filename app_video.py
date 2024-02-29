@@ -19,8 +19,8 @@ from utils.general import (LOGGER, Profile, check_file, check_img_size, check_im
 weights = "model/best.pt"
 model = DetectMultiBackend(weights)
 
-conf_threshold = 0.25
-nms_iou_thres = 0.45
+conf_threshold = 0.01
+nms_iou_thres = 0.01
 max_det = 1000
 
 video_path = 'video.mp4'
@@ -29,7 +29,7 @@ frames = pims.Video(video_path)
 # Get video properties
 frame_height, frame_width = frames.frame_shape[:2]
 fps = frames.frame_rate  # This might not always be available depending on the backend
-number_of_frames = len(frames)
+number_of_frames = 60 # len(frames)
 
 # Define the codec and initialize the VideoWriter object to write the new video
 resize_width = 1280
@@ -43,10 +43,10 @@ for i in tqdm(range(number_of_frames)):
     # Your frame processing here
     # For example: convert frame to BGR for cv2 compatibility if necessary
     if frame.ndim == 3 and frame.shape[2] == 3:  # If frame is color
-        frame_inv = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
     # Assuming the necessary preprocessing and object detection steps are performed here
-    im = np.transpose(frame_inv, (2,0,1))
+    im = np.transpose(frame, (2,0,1))
     im = torch.from_numpy(im).float()
     im /= 255  # Normalize pixel values
     if len(im.shape) == 3:
@@ -59,9 +59,11 @@ for i in tqdm(range(number_of_frames)):
     plot_frame = pims.Frame(frame)
     for p, c in zip(filtered_pred[0], ["r", "b", "g", "cyan"]):
         x, y, w, h, score, cls = p.detach().cpu().numpy().tolist()
+        print(x, y, w, h)
         frame = plot_bounding_box(model, plot_frame, x, y, w, h, score, cls)
         
-    
+    cv2.imshow("preview", plot_frame)
+    cv2.waitKey(1000)
     out.write(plot_frame)
 
 #Tthe video writer object, and close all OpenCV windows

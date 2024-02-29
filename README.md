@@ -15,4 +15,4 @@ Install yolov9
 ```bash
 git clone https://github.com/WongKinYiu/yolov9.git
 python -m pip install -r yolov9/requirements.txt
-```s
+```
