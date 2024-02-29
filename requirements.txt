@@ -1,0 +1,4 @@
+roboflow
+ultralytics
+opencv-python
+torch
