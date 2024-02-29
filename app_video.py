@@ -7,6 +7,8 @@ import torch
 import numpy as np
 from tqdm import tqdm
 from plot import plot_bounding_box
+from pims import Frame
+
 
 from models.common import DetectMultiBackend
 from utils.torch_utils import select_device, smart_inference_mode
@@ -30,19 +32,21 @@ fps = frames.frame_rate  # This might not always be available depending on the b
 number_of_frames = len(frames)
 
 # Define the codec and initialize the VideoWriter object to write the new video
+resize_width = 1280
+resize_height = 640
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # You can change 'mp4v' to another codec if needed
-out = cv2.VideoWriter('video_labelled.mp4', fourcc, fps, (frame_width, frame_height))
+out = cv2.VideoWriter('video_labelled.mp4', fourcc, fps, (resize_width, resize_height))
 
 for i in tqdm(range(number_of_frames)):
     frame = frames[i]
-    frame = cv2.resize(frame, (2560, 1280))
+    frame = cv2.resize(frame, (resize_width, resize_height))
     # Your frame processing here
     # For example: convert frame to BGR for cv2 compatibility if necessary
     if frame.ndim == 3 and frame.shape[2] == 3:  # If frame is color
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        frame_inv = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
     # Assuming the necessary preprocessing and object detection steps are performed here
-    im = np.transpose(frame, (2,0,1))
+    im = np.transpose(frame_inv, (2,0,1))
     im = torch.from_numpy(im).float()
     im /= 255  # Normalize pixel values
     if len(im.shape) == 3:
@@ -52,12 +56,13 @@ for i in tqdm(range(number_of_frames)):
     pred = model(im, augment=False, visualize=False)[0]
     filtered_pred = non_max_suppression(pred, conf_threshold, nms_iou_thres, None, False, max_det=max_det)
     
+    plot_frame = pims.Frame(frame)
     for p, c in zip(filtered_pred[0], ["r", "b", "g", "cyan"]):
         x, y, w, h, score, cls = p.detach().cpu().numpy().tolist()
-        frame = plot_bounding_box(model, frame, x, y, w, h, score, cls)
+        frame = plot_bounding_box(model, plot_frame, x, y, w, h, score, cls)
         
-    out.write(frame)
+    
+    out.write(plot_frame)
 
-# Release the video capture, the video writer object, and close all OpenCV windows
+#Tthe video writer object, and close all OpenCV windows
 out.release()
-cv2.destroyAllWindows()
