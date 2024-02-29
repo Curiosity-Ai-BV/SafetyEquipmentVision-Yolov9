@@ -3,3 +3,6 @@ ultralytics
 opencv-python
 torch
 tqdm
+
+pims
+moviepy

@@ -2,3 +2,10 @@ venv
 construction-safety-2
 model/*.pt
 yolov9
+__pycache__/*
+__pycache__
+
+
+*.mp4
+*.m4v
+*.pyc

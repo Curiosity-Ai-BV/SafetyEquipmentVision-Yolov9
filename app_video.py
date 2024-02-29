@@ -6,7 +6,7 @@ import pims
 import torch
 import numpy as np
 from tqdm import tqdm
-from app import plot_bounding_box
+from plot import plot_bounding_box
 
 from models.common import DetectMultiBackend
 from utils.torch_utils import select_device, smart_inference_mode
@@ -21,18 +21,21 @@ conf_threshold = 0.25
 nms_iou_thres = 0.45
 max_det = 1000
 
-video_path = 'video.m4v'
+video_path = 'video.mp4'
 frames = pims.Video(video_path)
 
 # Get video properties
 frame_height, frame_width = frames.frame_shape[:2]
 fps = frames.frame_rate  # This might not always be available depending on the backend
+number_of_frames = len(frames)
 
 # Define the codec and initialize the VideoWriter object to write the new video
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # You can change 'mp4v' to another codec if needed
 out = cv2.VideoWriter('video_labelled.mp4', fourcc, fps, (frame_width, frame_height))
 
-for frame in tqdm(frames):
+for i in tqdm(range(number_of_frames)):
+    frame = frames[i]
+    frame = cv2.resize(frame, (2560, 1280))
     # Your frame processing here
     # For example: convert frame to BGR for cv2 compatibility if necessary
     if frame.ndim == 3 and frame.shape[2] == 3:  # If frame is color
@@ -51,7 +54,7 @@ for frame in tqdm(frames):
     
     for p, c in zip(filtered_pred[0], ["r", "b", "g", "cyan"]):
         x, y, w, h, score, cls = p.detach().cpu().numpy().tolist()
-        frame = plot_bounding_box(frame, x, y, w, h, score, cls)
+        frame = plot_bounding_box(model, frame, x, y, w, h, score, cls)
         
     out.write(frame)
 
