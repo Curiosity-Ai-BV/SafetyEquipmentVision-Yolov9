@@ -17,7 +17,7 @@ nms_iou_thres = 0.45
 max_det = 1000
 
 # Replace 'Topview-workers.m4v' with the path to your video file
-cap = cv2.VideoCapture('Warehouse-1.m4v')
+cap = cv2.VideoCapture('Workers-safety-equipment.m4v')
 
 # Determine the video's original FPS and size
 fps = cap.get(cv2.CAP_PROP_FPS)
@@ -27,7 +27,7 @@ total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
 # Define the codec and create a VideoWriter object to save the output
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter('output_video7.mp4', fourcc, fps, (1280, 768))
+out = cv2.VideoWriter('output_video11.mp4', fourcc, fps, (1280, 768))
 
 def resize_frame(img, size=(1280, 768)):
     return cv2.resize(img, size, interpolation=cv2.INTER_LINEAR)
@@ -35,13 +35,19 @@ def resize_frame(img, size=(1280, 768)):
 def plot_bounding_box(model, frame, x, y, w, h, score, cls):
     text = model.names[int(cls)]
     
-    # Set color to red for 'no-vest' and 'no-helmet', blue for 'person', and green for others
-    if text in ["no-vest", "no-helmet"]:
-        color = (0, 0, 255)  # Red color for specific detections
-    elif text == "person":
-        color = (255, 0, 0)  # Blue for person
+    # Set colors for different classes
+    if text == "person":
+        color = (255, 0, 0) # Blue for person
+    elif text == "helmet":
+        color = (0, 255, 0) # Green for helmet
+    elif text == "no-helmet":
+        color = (0, 165, 255) # Orange for no-helmet
+    elif text == "vest":
+        color = (0, 255, 255) # Cyan for vest
+    elif text == "no-vest":
+        color = (255, 0, 255) # Magenta for no-vest
     else:
-        color = (0, 255, 0)  # Green for other detections
+        color = (255, 255, 0) # Yellow for unspecified categories
 
     score = score.item() if torch.is_tensor(score) else score
 
